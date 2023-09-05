@@ -40,7 +40,7 @@ final class SubController extends BaseController
         $token = $antiXss->xss_clean($args['token']);
 
         if ($_ENV['enable_rate_limit'] &&
-            (! RateLimit::checkIPLimit($request->getServerParam('REMOTE_ADDR')) ||
+            (! RateLimit::checkIPLimit($request->getServerParam('HTTP_X_FORWARDED_FOR')) ||
             ! RateLimit::checkSubLimit($token))
         ) {
             return ResponseHelper::error($response, $err_msg);
@@ -91,7 +91,7 @@ final class SubController extends BaseController
         $token = $antiXss->xss_clean($args['token']);
 
         if ($_ENV['enable_rate_limit'] &&
-            (! RateLimit::checkIPLimit($request->getServerParam('REMOTE_ADDR')) ||
+            (! RateLimit::checkIPLimit($request->getServerParam('HTTP_X_FORWARDED_FOR')) ||
                 ! RateLimit::checkSubLimit($token))
         ) {
             return ResponseHelper::error($response, $err_msg);

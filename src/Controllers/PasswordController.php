@@ -66,7 +66,7 @@ final class PasswordController extends BaseController
             return ResponseHelper::error($response, '未填写邮箱');
         }
 
-        if (! RateLimit::checkEmailIpLimit($request->getServerParam('REMOTE_ADDR')) ||
+        if (! RateLimit::checkEmailIpLimit($request->getServerParam('HTTP_X_FORWARDED_FOR')) ||
             ! RateLimit::checkEmailAddressLimit($email)
         ) {
             return ResponseHelper::error($response, '你的请求过于频繁，请稍后再试');

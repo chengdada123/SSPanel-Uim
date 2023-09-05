@@ -87,7 +87,7 @@ final class AuthController extends BaseController
 
         if (! Hash::checkPassword($user->pass, $passwd)) {
             // 记录登录失败
-            $user->collectLoginIP($_SERVER['REMOTE_ADDR'], 1);
+            $user->collectLoginIP($_SERVER['HTTP_X_FORWARDED_FOR'], 1);
 
             return $response->withJson([
                 'ret' => 0,
@@ -98,7 +98,7 @@ final class AuthController extends BaseController
         if ($user->ga_enable) {
             if (strlen($code) !== 6) {
                 // 记录登录失败
-                $user->collectLoginIP($_SERVER['REMOTE_ADDR'], 1);
+                $user->collectLoginIP($_SERVER['HTTP_X_FORWARDED_FOR'], 1);
 
                 return $response->withJson([
                     'ret' => 0,
@@ -108,7 +108,7 @@ final class AuthController extends BaseController
 
             if (! MFA::verifyGa($user, $code)) {
                 // 记录登录失败
-                $user->collectLoginIP($_SERVER['REMOTE_ADDR'], 1);
+                $user->collectLoginIP($_SERVER['HTTP_X_FORWARDED_FOR'], 1);
 
                 return $response->withJson([
                     'ret' => 0,
@@ -125,7 +125,7 @@ final class AuthController extends BaseController
 
         Auth::login($user->id, $time);
         // 记录登录成功
-        $user->collectLoginIP($_SERVER['REMOTE_ADDR']);
+        $user->collectLoginIP($_SERVER['HTTP_X_FORWARDED_FOR']);
 
         return $response->withJson([
             'ret' => 1,
@@ -176,7 +176,7 @@ final class AuthController extends BaseController
                 return $response->withJson($check_res);
             }
 
-            if (! RateLimit::checkEmailIpLimit($request->getServerParam('REMOTE_ADDR')) ||
+            if (! RateLimit::checkEmailIpLimit($request->getServerParam('HTTP_X_FORWARDED_FOR')) ||
                 ! RateLimit::checkEmailAddressLimit($email)
             ) {
                 return ResponseHelper::error($response, '你的请求过于频繁，请稍后再试');
@@ -288,7 +288,7 @@ final class AuthController extends BaseController
         $user->node_iplimit = $configs['connection_ip_limit'];
         $user->node_speedlimit = $configs['connection_rate_limit'];
         $user->reg_date = date('Y-m-d H:i:s');
-        $user->reg_ip = $_SERVER['REMOTE_ADDR'];
+        $user->reg_ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
         $user->theme = $_ENV['theme'];
         $random_group = Setting::obtain('random_group');
 
@@ -300,7 +300,7 @@ final class AuthController extends BaseController
 
         if ($user->save() && ! $is_admin_reg) {
             Auth::login($user->id, 3600);
-            $user->collectLoginIP($_SERVER['REMOTE_ADDR']);
+            $user->collectLoginIP($_SERVER['HTTP_X_FORWARDED_FOR']);
 
             return $response->withJson([
                 'ret' => 1,

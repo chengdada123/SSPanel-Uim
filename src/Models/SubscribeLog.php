@@ -43,7 +43,7 @@ final class SubscribeLog extends Model
         $antiXss = new AntiXSS();
         $log->user_id = $user->id;
         $log->type = $antiXss->xss_clean($type);
-        $log->request_ip = $_SERVER['REMOTE_ADDR'];
+        $log->request_ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
         $log->request_user_agent = $antiXss->xss_clean($ua);
         $log->request_time = time();
         $log->save();

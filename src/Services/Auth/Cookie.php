@@ -22,7 +22,7 @@ final class Cookie extends Base
             'uid' => strval($uid),
             'email' => $user->email,
             'key' => Hash::cookieHash($user->pass, $expire_in),
-            'ip' => Hash::ipHash($_SERVER['REMOTE_ADDR'], $uid, $expire_in),
+            'ip' => Hash::ipHash($_SERVER['HTTP_X_FORWARDED_FOR'], $uid, $expire_in),
             'expire_in' => strval($expire_in),
         ], $expire_in);
     }
@@ -47,9 +47,9 @@ final class Cookie extends Base
         }
 
         if ($_ENV['enable_login_bind_ip']) {
-            $nodes = Node::where('node_ip', $_SERVER['REMOTE_ADDR'])->first();
+            $nodes = Node::where('node_ip', $_SERVER['HTTP_X_FORWARDED_FOR'])->first();
 
-            if (($nodes === null) && $ipHash !== Hash::ipHash($_SERVER['REMOTE_ADDR'], $uid, $expire_in)) {
+            if (($nodes === null) && $ipHash !== Hash::ipHash($_SERVER['HTTP_X_FORWARDED_FOR'], $uid, $expire_in)) {
                 return $user;
             }
         }
